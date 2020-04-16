@@ -47,4 +47,4 @@ buck-out/
 org.eclipse.buildship.core.prefs
 
 yarn.lock
-package.lock
+package-lock.json
