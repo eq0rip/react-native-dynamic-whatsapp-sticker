@@ -16,6 +16,12 @@ RCT_EXTERN_METHOD(addSticker:(NSString *)fileName
                   resolver: (RCTPromiseResolveBlock)resolve
                   rejecter: (RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(addStickerData:(NSString *)imageData
+                  type:(NSString *)type
+                  emojis:(NSArray *)emojis
+                  resolver: (RCTPromiseResolveBlock)resolve
+                  rejecter: (RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(send:(RCTPromiseResolveBlock)resolve
                   rejecter: (RCTPromiseRejectBlock)reject)
 
