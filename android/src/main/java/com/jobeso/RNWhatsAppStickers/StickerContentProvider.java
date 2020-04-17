@@ -18,8 +18,10 @@ import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -31,7 +33,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
 import com.orhanobut.hawk.Hawk;
+
 import android.os.ParcelFileDescriptor;
 
 public class StickerContentProvider extends ContentProvider {
@@ -53,6 +57,7 @@ public class StickerContentProvider extends ContentProvider {
     public static final String STICKER_FILE_NAME_IN_QUERY = "sticker_file_name";
     public static final String STICKER_FILE_EMOJI_IN_QUERY = "sticker_emoji";
     public static final String CONTENT_FILE_NAME = "contents.json";
+    private static final String TAG = StickerContentProvider.class.getSimpleName();
 
     // public static Uri AUTHORITY_URI = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(RNWhatsAppStickersModule.getContentProviderAuthority()).appendPath(StickerContentProvider.METADATA).build();
 
@@ -121,10 +126,9 @@ public class StickerContentProvider extends ContentProvider {
     @Override
     public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode) {
         final int matchCode = MATCHER.match(uri);
-        if (matchCode == STICKERS_ASSET_CODE || matchCode == STICKER_PACK_TRAY_ICON_CODE) {
-            return getImageAsset(uri);
-        }
-        return null;
+        // if (matchCode == STICKERS_ASSET_CODE || matchCode == STICKER_PACK_TRAY_ICON_CODE) {
+        return getImageAsset(uri);
+        // return null;
     }
 
 
@@ -251,11 +255,11 @@ public class StickerContentProvider extends ContentProvider {
         for (StickerPack stickerPack : getStickerPackList()) {
             if (identifier.equals(stickerPack.identifier)) {
                 if (fileName.equals(stickerPack.trayImageFile)) {
-                    return fetchFile(uri, am, fileName, identifier);
+                    return fetchFile(uri, am, fileName, identifier, true);
                 } else {
                     for (Sticker sticker : stickerPack.getStickers()) {
                         if (fileName.equals(sticker.imageFileName)) {
-                            return fetchFile(uri, am, fileName, identifier);
+                            return fetchFile(uri, am, fileName, identifier, false);
                         }
                     }
                 }
@@ -264,23 +268,22 @@ public class StickerContentProvider extends ContentProvider {
         return null;
     }
 
-    private AssetFileDescriptor fetchFile(@NonNull Uri uri, @NonNull AssetManager am, @NonNull String fileName, @NonNull String identifier) {
+    private AssetFileDescriptor fetchFile(@NonNull Uri uri, @NonNull AssetManager am, @NonNull String fileName, @NonNull String identifier, Boolean isTrayFile) {
         try {
             File file;
             file = new File(getContext().getFilesDir() + "/" + "stickers_asset" + "/" + identifier + "/", fileName);
             if (!file.exists()) {
                 Log.d("fetFile", "StickerPack dir not found");
             }
-            Log.d("fetchFile", "StickerPack " + file.getPath());
             return new AssetFileDescriptor(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY), 0L, -1L);
         } catch (IOException e) {
             Log.e(Objects.requireNonNull(getContext()).getPackageName(),
                     "IOException when getting asset file, uri:" + uri, e);
             try {
-            return am.openFd("1" + "/" + "namaskar.webp");
+                return am.openFd("1" + "/" + "namaskar.webp");
             } catch (IOException err) {
-            Log.e(Objects.requireNonNull(getContext()).getPackageName(), "IOException when getting asset file, uri:" + uri, err);
-            return null;
+                Log.e(Objects.requireNonNull(getContext()).getPackageName(), "IOException when getting asset file, uri:" + uri, err);
+                return null;
             }
         }
     }
